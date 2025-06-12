@@ -1,5 +1,5 @@
-# Projeto-de-um-card-pio-
 # Este é um exemplo de um cardápio para uma hamburgueria
+Este é um projeto simples tipo aplicação console. Ele simula um um cardápio interativo, pro uma hamburgueria. Em Python que foi desenvolvido, com ele usa uma árvore, dados estruturada. Pra exibir os itens do cardápio.
 def exibir_menu_principal(cardapio):
     print("\n cardápio da hamburgueria:")
     opcoes_principais = []
