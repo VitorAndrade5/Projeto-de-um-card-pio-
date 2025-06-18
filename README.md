@@ -5,43 +5,99 @@ Este é um projeto simples tipo aplicação console. Ele simula um um cardápio 
 
 
 
-def exibir_menu_principal(cardapio):
-    print("\n cardápio da hamburgueria:")
-    opcoes_principais = []
-    for i, categoria in enumerate(cardapio.keys()):
-        print(f"{i + 1}. {categoria}")
-        opcoes_principais.append(categoria)
-    print("0. Sair")
-    return opcoes_principais
+#cardapio 
+class NoCardapio:
+    def __init__(self, nome, preco=None):
+        self.nome = nome
+        self.preco = preco
+        self.filhos = []
 
-def exibir_itens_categoria(categoria_escolhida, itens):
-    print(f"\n Lanches: {categoria_escolhida.upper()}")
-    if isinstance(itens, dict):
-        for item, preco in itens.items():
-            print(f"- {item}: {preco}")
-    else:
-        print(f"Não há itens detalhados para {categoria_escolhida}")
-    input("Voltar")
-
-def iniciar_cardapio_simples(cardapio):
-    while True:
-        opcoes = exibir_menu_principal(cardapio)
+    def adicionar_filho(self, no_filho):
         
+        self.filhos.append(no_filho)
+
+    def __str__(self):
+        
+        if self.preco:
+            return f"{self.nome}: {self.preco}"
+        return self.nome
+
+def construir_arvore_cardapio(dados_cardapio):
+   
+    raiz = NoCardapio("menu")
+
+   
+    for categoria_nome, itens_ou_subcategorias in dados_cardapio.items():
+        no_categoria = NoCardapio(categoria_nome)
+        raiz.adicionar_filho(no_categoria)
+
+      
+        if isinstance(itens_ou_subcategorias, dict):
+            for item_nome, item_preco in itens_ou_subcategorias.items():
+                no_item = NoCardapio(item_nome, item_preco)
+                no_categoria.adicionar_filho(no_item)
+        else:
+            pass 
+    return raiz
+
+def exibir_menu_arvore(no_atual):
+    
+    print(f"{no_atual.nome.upper()}") 
+    opcoes_nós = []
+    if no_atual.filhos:
+        for i, filho in enumerate(no_atual.filhos):
+           
+            print(f"{i + 1}. {filho.nome} {'- ' + filho.preco if filho.preco else ''}")
+            opcoes_nós.append(filho)
+    else:
+       
+        print(f"Não há mais detalhes {no_atual.nome}.")
+
+    
+    if no_atual.nome != "Painel de Produtos": 
+        print("0. Voltar")
+    else:
+        print("0. Sair do Painel") 
+    return opcoes_nós
+
+def iniciar_cardapio_arvore(cardapio_dados):
+  
+    raiz_cardapio = construir_arvore_cardapio(cardapio_dados)
+    caminho_navegacao = [raiz_cardapio] 
+
+    print("Bem-vindo!") 
+
+    while True:
+        no_atual = caminho_navegacao[-1] 
+
+        opcoes_disponiveis = exibir_menu_arvore(no_atual)
+
         try:
-            escolha = int(input("Escolha uma opção: "))
-            
+            escolha = int(input("Escolha uma opção:"))
+
             if escolha == 0:
-                print("Volte sempre!")
-                break
-            elif 1 <= escolha <= len(opcoes):
-                categoria_selecionada = opcoes[escolha - 1]
-                itens_da_categoria = cardapio[categoria_selecionada]
+                if len(caminho_navegacao) > 1:
+                    
+                    caminho_navegacao.pop()
+                else:
+                    
+                    print("Volte sempre!")
+                    break
+            elif 1 <= escolha <= len(opcoes_disponiveis):
                 
-                exibir_itens_categoria(categoria_selecionada, itens_da_categoria)
+                proximo_no = opcoes_disponiveis[escolha - 1]
+                if proximo_no.filhos: 
+                    caminho_navegacao.append(proximo_no)
+                else:
+                    
+                    print(f"\nDetalhes do Produto: {proximo_no.nome} - {proximo_no.preco}")
+                    input("Pressione Enter para voltar")
             else:
-                print("Opção inválida.")
+                print("Opção inválida. ")
         except ValueError:
-            print("Entrada inválida. Digite um número.")
+            print("Entrada inválida.")
+
+
 cardapio_hamburgueria_simples = {
     "Hamburgueres": {
         "X-Burguer": "R$ 30.00",
@@ -50,7 +106,10 @@ cardapio_hamburgueria_simples = {
     "Bebidas": {
         "Coca-Cola": "R$ 7.00",
     },
+    "Acompanhamentos": {
+        "Batata Frita P": "R$ 10.00",
+        "Batata Frita G": "R$ 15.00"
+    }
 }
 
-print("Bem-vindo à nossa Hamburgueria!")
-iniciar_cardapio_simples(cardapio_hamburgueria_simples)
+iniciar_cardapio_arvore(cardapio_hamburgueria_simples)
